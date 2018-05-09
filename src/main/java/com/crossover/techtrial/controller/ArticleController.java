@@ -38,6 +38,7 @@ public class ArticleController {
 
 	@PutMapping(path = "articles/{article-id}")
 	public ResponseEntity<Article> updateArticle(@PathVariable("article-id") Long id, @RequestBody Article article) {
+		article.setId(id);
 		return new ResponseEntity<>(articleService.save(article), HttpStatus.OK);
 	}
 
