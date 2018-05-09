@@ -20,24 +20,33 @@ import com.crossover.techtrial.model.Article;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ArticleControllerTest {
 
-	@Autowired
-	private TestRestTemplate template;
+    @Autowired
+    private TestRestTemplate template;
 
-	@Before
-	public void setup() throws Exception {
+    @Before
+    public void setup() throws Exception {
 
-	}
+    }
 
-	@Test
-	public void testArticleShouldBeCreated() throws Exception {
-		HttpEntity<Object> article = getHttpEntity("{\"email\": \"user1@gmail.com\", \"title\": \"hello\" }");
-		ResponseEntity<Article> resultAsset = template.postForEntity("/articles", article, Article.class);
-		Assert.assertNotNull(resultAsset.getBody().getId());
-	}
+    @Test
+    public void testArticleShouldBeCreated() throws Exception {
+        HttpEntity<Object> article = getHttpEntity("{\"email\": \"user1@gmail.com\", \"title\": \"hello\" }");
+        ResponseEntity<Article> resultAsset = template.postForEntity("/articles", article, Article.class);
+        Assert.assertNotNull(resultAsset.getBody().getId());
+    }
 
-	private HttpEntity<Object> getHttpEntity(Object body) {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new HttpEntity<Object>(body, headers);
-	}
+    @Test
+    public void testArticleTitleLength() throws Exception {
+        String titleWith121Length = String.format("%0" + 121 + "d", 0).replace('0', '0');
+
+        HttpEntity<Object> article = getHttpEntity("{\"email\": \"user1@gmail.com\", \"title\": \"" + titleWith121Length + "\" }");
+        ResponseEntity<Article> resultAsset = template.postForEntity("/articles", article, Article.class);
+        Assert.assertTrue(resultAsset.getStatusCode().is4xxClientError());
+    }
+
+    private HttpEntity<Object> getHttpEntity(Object body) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new HttpEntity<Object>(body, headers);
+    }
 }

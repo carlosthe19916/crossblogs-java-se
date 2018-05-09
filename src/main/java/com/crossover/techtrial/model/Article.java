@@ -38,6 +38,7 @@ public class Article implements Serializable {
 	@Column(name = "email")
 	String email;
 
+	@Size(max = 120)
 	@Column(name = "title")
 	String title;
 
