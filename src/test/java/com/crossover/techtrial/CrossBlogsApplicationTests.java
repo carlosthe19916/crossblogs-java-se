@@ -13,4 +13,9 @@ public class CrossBlogsApplicationTests {
 	public void contextLoads() {
 	}
 
+	@Test
+	public void applicationContextTest() {
+		CrossBlogsApplication.main(new String[]{});
+	}
+
 }
