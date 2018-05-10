@@ -8,15 +8,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.crossover.techtrial.model.Article;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -38,7 +39,7 @@ public class ArticleControllerTest {
     }
 
     @Test
-    public void testArticleTitleLength() throws Exception {
+    public void testArticleTitleMaxLength() throws Exception {
         String titleWith121Length = String.format("%0" + 121 + "d", 0).replace('0', '0');
 
         HttpEntity<Object> article = getHttpEntity("{\"email\": \"user1@gmail.com\", \"title\": \"" + titleWith121Length + "\" }");
@@ -71,6 +72,36 @@ public class ArticleControllerTest {
         Assert.assertEquals(LocalDateTime.of(2018, 3, 9, 12, 30), articleModel.getDate());
         Assert.assertEquals(true, articleModel.getPublished());
     }
+
+    @Test
+    public void testDeleteArticle() throws Exception {
+        HttpEntity<Object> article = getHttpEntity("{\"email\": \"user1@gmail.com\", \"title\": \"hello\" }");
+        ResponseEntity<Article> resultAsset = template.postForEntity("/articles", article, Article.class);
+
+        Long articleId = resultAsset.getBody().getId();
+        template.delete("/articles/" + articleId);
+
+        resultAsset = template.getForEntity("/articles/" + articleId, Article.class);
+        Assert.assertNull(resultAsset.getBody());
+    }
+
+//    @Test
+//    public void testSearchArticle() {
+//        HttpEntity<Object> article1 = getHttpEntity("{\"email\": \"user1@gmail.com\", \"title\": \"Camel in action\" }");
+//        template.postForEntity("/articles", article1, Article.class);
+//
+//        HttpEntity<Object> article2 = getHttpEntity("{\"email\": \"user1@gmail.com\", \"title\": \"Spring in action\" }");
+//        template.postForEntity("/articles", article2, Article.class);
+//
+//        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/articles/search")
+//                .queryParam("text", "Camel");
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_JSON);
+//        HttpEntity<?> entity = new HttpEntity<>(headers);
+//        ResponseEntity<List> forEntity = template.exchange( builder.build().encode().toUri(), HttpMethod.GET, entity, List.class);
+//        List<Article> articles = forEntity.getBody();
+//        Assert.assertEquals(2, articles.size());
+//    }
 
     private HttpEntity<Object> getHttpEntity() {
         HttpHeaders headers = new HttpHeaders();
