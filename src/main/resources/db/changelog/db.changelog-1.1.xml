@@ -10,4 +10,9 @@
 			<column name="content">Get a bowl and heat the water to reach boiling point. Put chicken egg for approximately 10 minutes.</column>
 		</insert>
 	</changeSet>
+	<changeSet author="java" id="create_article_index">
+		<createIndex tableName="article" indexName="title_index">
+			<column name="title"/>
+		</createIndex>
+	</changeSet>
 </databaseChangeLog>
