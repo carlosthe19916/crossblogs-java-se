@@ -85,23 +85,28 @@ public class ArticleControllerTest {
         Assert.assertNull(resultAsset.getBody());
     }
 
-//    @Test
-//    public void testSearchArticle() {
-//        HttpEntity<Object> article1 = getHttpEntity("{\"email\": \"user1@gmail.com\", \"title\": \"Camel in action\" }");
-//        template.postForEntity("/articles", article1, Article.class);
-//
-//        HttpEntity<Object> article2 = getHttpEntity("{\"email\": \"user1@gmail.com\", \"title\": \"Spring in action\" }");
-//        template.postForEntity("/articles", article2, Article.class);
-//
-//        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/articles/search")
-//                .queryParam("text", "Camel");
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.APPLICATION_JSON);
-//        HttpEntity<?> entity = new HttpEntity<>(headers);
-//        ResponseEntity<List> forEntity = template.exchange( builder.build().encode().toUri(), HttpMethod.GET, entity, List.class);
-//        List<Article> articles = forEntity.getBody();
-//        Assert.assertEquals(2, articles.size());
-//    }
+    @Test
+    public void testSearchArticle() {
+        HttpEntity<Object> article1 = getHttpEntity("{\"email\": \"user1@gmail.com\", \"title\": \"Camel in action\" }");
+        ResponseEntity<Article> resultAsset = template.postForEntity("/articles", article1, Article.class);
+        Long id1 = resultAsset.getBody().getId();
+
+        HttpEntity<Object> article2 = getHttpEntity("{\"email\": \"user1@gmail.com\", \"title\": \"Spring in action\" }");
+        resultAsset = template.postForEntity("/articles", article2, Article.class);
+        Long id2 = resultAsset.getBody().getId();
+
+        ResponseEntity<List> searchResultAsset = template.getForEntity("/articles/search?text=camel", List.class);
+        Assert.assertEquals(1, searchResultAsset.getBody().size());
+
+        searchResultAsset = template.getForEntity("/articles/search?text=spring", List.class);
+        Assert.assertEquals(1, searchResultAsset.getBody().size());
+
+        searchResultAsset = template.getForEntity("/articles/search?text=action", List.class);
+        Assert.assertEquals(2, searchResultAsset.getBody().size());
+
+        template.delete("/articles/" + id1);
+        template.delete("/articles/" + id2);
+    }
 
     private HttpEntity<Object> getHttpEntity() {
         HttpHeaders headers = new HttpHeaders();
